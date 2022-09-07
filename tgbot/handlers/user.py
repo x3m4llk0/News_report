@@ -1,12 +1,11 @@
-from aiogram import Router, Bot
+from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, Update
+from aiogram.types import Message, CallbackQuery, Update, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
 from aiogram.utils.markdown import hbold
 
-from tgbot.keyboards.callback_data import ProductsCallback
-from tgbot.keyboards.inline import rules_kb, menu_kb, product_kb, back_to_menu_kb
+from tgbot.keyboards.inline import rules_kb, menu_kb, back_to_menu_kb
 from tgbot.misc.platform_api import send_upd, send_to_api
-from tgbot.misc.questions import products_questions
+from tgbot.misc.questions import questions_and_answers
 from tgbot.misc.states import dialog
 from tgbot.models.db_commands import get_user, create_user, delete_user, get_session, create_session
 
@@ -54,27 +53,6 @@ async def cancel_rules(call: CallbackQuery):
                                  "для повторной регистрации выполните команду /start")
 
 
-@user_router.callback_query(text="products")
-async def products(call: CallbackQuery):
-    await send_to_api(call.message.chat.id)
-    await call.message.edit_text("Выберете один из пунктов меню 👇", reply_markup=await product_kb())
-
-
-@user_router.callback_query(ProductsCallback.filter())
-async def show_products(call: CallbackQuery, callback_data: ProductsCallback):
-    questions_id = callback_data.id
-    questions = products_questions()
-    keys = list(questions.keys())
-    await call.message.edit_text(
-        text="\n".join(
-            [
-                hbold(keys[questions_id]),
-                f'\n{questions[keys[questions_id]]}'
-            ]
-        ), reply_markup=await back_to_menu_kb()
-    )
-
-
 @user_router.callback_query(text="another_question")
 async def another_question(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text("Напишите текст вопроса", reply_markup=await back_to_menu_kb())
@@ -96,3 +74,31 @@ async def dialog_with_manager(message: Message, event_update: Update):
         await send_upd(event_update.json(), True)
         await create_session(user_id=message.chat.id)
     await message.answer("Ваше сообщение отправлено менеджеру, для остановки чата пропишите команду, /stop_dialog")
+
+
+@user_router.inline_query(text="#Продукция")
+@user_router.inline_query(text="#Поддержка")
+@user_router.inline_query(text="#Информация")
+@user_router.inline_query(text="#Предложение")
+async def show_question(query: InlineQuery):
+    user_id = query.from_user.id
+    user = await get_user(user_id)
+    if not user or not user.is_active:
+        await query.answer(
+            results=[],
+            switch_pm_text="Бот недоступен. Перейдите в боте и примите правила.",
+            cache_time=5
+        )
+        return
+    await send_to_api(user_id)
+    Q_A = await questions_and_answers(query.query)
+    result = []
+    for number, item in enumerate(Q_A, start=1):
+        result.append(InlineQueryResultArticle(id=number,
+                                               title=item,
+                                               input_message_content=InputTextMessageContent(
+                                                   message_text=f'{hbold(item)}\n\n'+Q_A[item]
+                                               ),
+                                               description=Q_A[item][:20] + "..."
+                                               ))
+    await query.answer(results=result)

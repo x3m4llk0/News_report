@@ -44,8 +44,7 @@ async def main():
     dp = Dispatcher(storage=storage)
 
     for router in [
-        user_router,
-        echo_router
+        user_router
     ]:
         dp.include_router(router)
 
