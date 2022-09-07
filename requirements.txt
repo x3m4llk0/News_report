@@ -4,3 +4,4 @@ environs~=9.0
 asyncpg
 gino
 loguru
+requests

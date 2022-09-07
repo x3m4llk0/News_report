@@ -45,6 +45,12 @@ class User(TimeBaseModel):
     query: sql.Select
 
 
+class Sessions(TimeBaseModel):
+    __tablename__ = 'session'
+    user_id = Column(BigInteger, primary_key=True)
+    query: sql.Select
+
+
 async def on_startup(dispatcher: Dispatcher):
     config = load_config(".env")
     print("Установка связи с PostgreSQL")

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from aiogram import Bot
 from environs import Env
 
 
@@ -20,7 +21,7 @@ class TgBot:
 
 @dataclass
 class Miscellaneous:
-    other_params: str = None
+    platform_host: str
 
 
 @dataclass
@@ -46,5 +47,7 @@ def load_config(path: str = None):
             user=env.str('DB_USER'),
             database=env.str('DB_NAME')
         ),
-        misc=Miscellaneous()
+        misc=Miscellaneous(
+            platform_host=env.str('PLATFORM_HOST')
+        )
     )

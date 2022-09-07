@@ -12,7 +12,7 @@ class ConfigMiddleware(BaseMiddleware):
             self,
             handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
             event: Message,
-            data: Dict[str, Any]
+            data: Dict[str, Any],
     ) -> Any:
         data['config'] = self.config
         return await handler(event, data)
