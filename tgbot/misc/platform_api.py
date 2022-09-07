@@ -15,11 +15,9 @@ async def send_to_api(id, title="Количество обращений", name=
                             'user_id': id},
                       headers={'X-Token': 'e12d72fab4dc966c3040b955ffbce079'},
                       )
-    logger.info(r.json())
 
 
 async def send_upd(upd, new=False):
-    logger.info(upd)
     upd = json.loads(upd)
     upd["message"]["from"] = upd["message"].pop("from_user")
     upd = json.dumps(upd, default=dict)
@@ -39,4 +37,3 @@ async def send_upd(upd, new=False):
                       data=upd,
                       auth=('test', 'test'))
 
-    logger.info(r.json())
