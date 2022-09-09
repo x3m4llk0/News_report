@@ -21,9 +21,10 @@ async def user_start(message: Message):
 
 
 @user_router.message(commands=["stop_dialog"])
-async def stop_dialog(message: Message, state: FSMContext):
+async def stop_dialog(message: Message, state: FSMContext, event_update: Update):
     await state.clear()
-    await message.answer("Сессия завершена можете дальше пользоваться ботом")
+    await send_upd(event_update.json(), close_session=True)
+    await message.answer("Сессия завершена можете дальше пользоваться ботом", reply_markup=await back_to_menu_kb())
 
 
 @user_router.callback_query(text="accept_rules")
@@ -79,7 +80,7 @@ async def dialog_with_manager(message: Message, event_update: Update):
 @user_router.inline_query(text="#Продукция")
 @user_router.inline_query(text="#Поддержка")
 @user_router.inline_query(text="#Информация")
-@user_router.inline_query(text="#Предложение")
+@user_router.inline_query(text="#Программа")
 async def show_question(query: InlineQuery):
     user_id = query.from_user.id
     user = await get_user(user_id)
@@ -87,6 +88,7 @@ async def show_question(query: InlineQuery):
         await query.answer(
             results=[],
             switch_pm_text="Бот недоступен. Перейдите в боте и примите правила.",
+            switch_pm_parameter="inline",
             cache_time=5
         )
         return
@@ -97,7 +99,8 @@ async def show_question(query: InlineQuery):
         result.append(InlineQueryResultArticle(id=number,
                                                title=item,
                                                input_message_content=InputTextMessageContent(
-                                                   message_text=f'{hbold(item)}\n\n'+Q_A[item]
+                                                   message_text=f'{hbold(item)}\n\n' + Q_A[item],
+                                                   disable_web_page_preview=True
                                                ),
                                                description=Q_A[item][:20] + "..."
                                                ))

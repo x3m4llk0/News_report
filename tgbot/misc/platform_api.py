@@ -17,10 +17,20 @@ async def send_to_api(id, title="Количество обращений", name=
                       )
 
 
-async def send_upd(upd, new=False):
+async def send_upd(upd, new=False, close_session=None):
     upd = json.loads(upd)
     upd["message"]["from"] = upd["message"].pop("from_user")
     upd = json.dumps(upd, default=dict)
+    if close_session:
+        open_request = upd
+        open_request = json.loads(open_request)
+        open_request["message"]["text"] = "Пользователь завершил диалог"
+        open_request = json.dumps(open_request, default=dict)
+        requests.post(f'https://lk.bottec.ru/api/tg/v1/bot/client',
+                      headers={'X-Secret': '6d3ad29879a90b4dd1b4f76e82166ca3', 'Bot-ID': '5004063309'},
+                      data=open_request,
+                      auth=('test', 'test'))
+        return
     if new:
         open_request = upd
         open_request = json.loads(open_request)
