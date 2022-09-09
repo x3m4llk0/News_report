@@ -51,6 +51,7 @@ async def cancel_rules(call: CallbackQuery):
 @user_router.callback_query(text="disable_bot")
 async def cancel_rules(call: CallbackQuery):
     await delete_user(call.message.chat.id)
+    await send_to_api(call.message.chat.id, title="Покинул бота", name="disable_bot")
     await call.message.edit_text("Вы отписались от рассылки и ограничены в правах пользования ботом, "
                                  "для повторной регистрации выполните команду /start")
 
