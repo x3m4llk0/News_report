@@ -44,6 +44,7 @@ async def back_to_menu(call: CallbackQuery, state: FSMContext):
 @user_router.callback_query(text="cancel_rules")
 async def cancel_rules(call: CallbackQuery):
     await send_to_api(call.message.chat.id)
+    await send_to_api(call.message.chat.id, title="Отклонил правила", name="cancel_rules")
     await call.message.edit_text("Вы не согласились с правилами, для повторной регистрации выполните команду /start")
 
 
@@ -92,7 +93,7 @@ async def show_question(query: InlineQuery):
             cache_time=5
         )
         return
-    await send_to_api(user_id)
+    await send_to_api(user_id, title=f"Запрос по тематике {query.query}", name="question")
     Q_A = await questions_and_answers(query.query)
     result = []
     for number, item in enumerate(Q_A, start=1):
