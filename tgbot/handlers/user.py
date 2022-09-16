@@ -16,7 +16,23 @@ user_router = Router()
 async def user_start(message: Message):
     user = await get_user(message.chat.id)
     if not user or not user.is_active:
-        return await message.answer("Соглашаетесь ли в с правилами?", reply_markup=await rules_kb())
+        return await message.answer(hbold(
+            f'Рады приветствовать вас в чат-боте «Друзья SPLAT»'
+            f'!Нажимая на кнопку «Принять», я соглашаюсь  с Правилами Программы и даю согласие на обработку '
+            f'моих персональных данных согласно  Политике конфиденциальности'
+        ), reply_markup=await rules_kb())
+    await message.answer("Выберете один из пунктов меню 👇", reply_markup=await menu_kb())
+
+
+@user_router.message(commands=["menu"], state=None)
+async def user_start(message: Message):
+    user = await get_user(message.chat.id)
+    if not user or not user.is_active:
+        return await message.answer(hbold(
+            f'Рады приветствовать вас в чат-боте «Друзья SPLAT»'
+            f'!Нажимая на кнопку «Принять», я соглашаюсь  с Правилами Программы и даю согласие на обработку '
+            f'моих персональных данных согласно  Политике конфиденциальности'
+        ), reply_markup=await rules_kb())
     await message.answer("Выберете один из пунктов меню 👇", reply_markup=await menu_kb())
 
 
@@ -45,15 +61,14 @@ async def back_to_menu(call: CallbackQuery, state: FSMContext):
 async def cancel_rules(call: CallbackQuery):
     await send_to_api(call.message.chat.id)
     await send_to_api(call.message.chat.id, title="Отклонил правила", name="cancel_rules")
-    await call.message.edit_text("Вы не согласились с правилами, для повторной регистрации выполните команду /start")
+    await call.message.edit_text("❌ Вы не согласились с правилами")
 
 
 @user_router.callback_query(text="disable_bot")
 async def cancel_rules(call: CallbackQuery):
     await delete_user(call.message.chat.id)
     await send_to_api(call.message.chat.id, title="Покинул бота", name="disable_bot")
-    await call.message.edit_text("Вы отписались от рассылки и ограничены в правах пользования ботом, "
-                                 "для повторной регистрации выполните команду /start")
+    await call.message.edit_text("Вы отписались от рассылки и ограничены в правах пользования ботом")
 
 
 @user_router.callback_query(text="another_question")
@@ -94,16 +109,26 @@ async def show_question(query: InlineQuery):
             cache_time=5
         )
         return
-    await send_to_api(user_id, title=f"Запрос по тематике {query.query}", name="question")
+    if query.query == "Продукция":
+        name = "question"
+    elif query.query == "Поддержка":
+        name = "support_inline"
+    elif query.query == "Информация":
+        name = "info_inline"
+    else:
+        name = "program_inline"
+    await send_to_api(user_id, title=f"Запрос по тематике {query.query}", name=name)
     Q_A = await questions_and_answers(query.query)
     result = []
+    kb = await menu_kb()
     for number, item in enumerate(Q_A, start=1):
         result.append(InlineQueryResultArticle(id=number,
                                                title=item,
                                                input_message_content=InputTextMessageContent(
                                                    message_text=f'{hbold(item)}\n\n' + Q_A[item],
-                                                   disable_web_page_preview=True
+                                                   disable_web_page_preview=True,
                                                ),
+                                               reply_keyboard=kb,
                                                description=Q_A[item][:20] + "..."
                                                ))
     await query.answer(results=result)

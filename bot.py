@@ -30,6 +30,10 @@ async def set_commands(bot: Bot):
             command="start",
             description="Запустить бота",
         ),
+        BotCommand(
+            command="menu",
+            description="Меню",
+        ),
     ]
     await bot.set_my_commands(commands=commands, scope=BotCommandScopeDefault())
 
