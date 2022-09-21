@@ -6,7 +6,6 @@ from aiogram.types import BotCommand, BotCommandScopeDefault
 from loguru import logger
 
 from tgbot.config import load_config
-from tgbot.handlers.echo import echo_router
 from tgbot.handlers.user import user_router
 from tgbot.middlewares.config import ConfigMiddleware
 from tgbot.misc.logging import configure_logger
