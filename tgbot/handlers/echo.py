@@ -4,7 +4,7 @@ from aiogram.utils.markdown import hbold
 echo_router = Router()
 
 
-@echo_router.message(F.text, state=None)
+@echo_router.message(F.text, F.via_bot == None, state=None)
 async def bot_echo(message: types.Message):
     text = [
         f"Команды {hbold(message.text)} нету.\n",

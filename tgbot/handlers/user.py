@@ -117,7 +117,7 @@ async def show_question(query: InlineQuery):
         name = "info_inline"
     else:
         name = "program_inline"
-    await send_to_api(user_id, title=f"Запрос по тематике {query.query}", name=name)
+    # await send_to_api(user_id, title=f"Запрос по тематике {query.query}", name=name)
     Q_A = await questions_and_answers(query.query)
     result = []
     kb = await menu_kb()
