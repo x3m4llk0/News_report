@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, Update, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
 from aiogram.utils.markdown import hbold
 
-from tgbot.keyboards.inline import rules_kb, menu_kb, back_to_menu_kb
+from tgbot.keyboards.inline import rules_kb, menu_kb, back_to_menu_kb, approve_disable_bot
 from tgbot.misc.platform_api import send_upd, send_to_api
 from tgbot.misc.questions import questions_and_answers
 from tgbot.misc.states import dialog
@@ -64,16 +64,30 @@ async def cancel_rules(call: CallbackQuery):
     await call.message.edit_text("❌ Вы не согласились с правилами")
 
 
+@user_router.callback_query(text="disable_bot_approve")
+async def cancel_rules(call: CallbackQuery):
+    await call.message.edit_text("Что 😮?! Вы серьезно хотите нас покинуть?", reply_markup=await approve_disable_bot())
+
+
 @user_router.callback_query(text="disable_bot")
 async def cancel_rules(call: CallbackQuery):
     await delete_user(call.message.chat.id)
     await send_to_api(call.message.chat.id, title="Покинул бота", name="disable_bot")
-    await call.message.edit_text("Вы отписались от рассылки и ограничены в правах пользования ботом")
+    await call.message.edit_text("Что ж, не смеем вас больше задерживать, но будем скучать без вас 😢!")
+
+
+@user_router.callback_query(text="not_disable_bot")
+async def cancel_rules(call: CallbackQuery):
+    await call.message.edit_text("Как мы рады, что вы остаетесь с нами! \n"
+                                 "Забудем о былом, возвращайтесь скорее в главное меню",
+                                 reply_markup=await back_to_menu_kb())
 
 
 @user_router.callback_query(text="another_question")
 async def another_question(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Напишите текст вопроса", reply_markup=await back_to_menu_kb())
+    await call.message.edit_text("Не нашли ответа на свой вопрос?\n\n"
+                                 "Напишите его нам в окошке сообщений. Мы обязательно вернемся к вам с ответом!",
+                                 reply_markup=await back_to_menu_kb())
     await state.set_state(dialog.session)
 
 
@@ -111,16 +125,17 @@ async def show_question(query: InlineQuery):
         return
     if query.query == "Продукция":
         name = "question"
+        photo_url = "https://i.imgur.com/eyU7EDv.png"
     elif query.query == "Поддержка":
         name = "support_inline"
     elif query.query == "Информация":
         name = "info_inline"
     else:
         name = "program_inline"
-    # await send_to_api(user_id, title=f"Запрос по тематике {query.query}", name=name)
+        photo_url = "https://i.imgur.com/OvIeJEg.png"
+    await send_to_api(user_id, title=f"Запрос по тематике {query.query}", name=name)
     Q_A = await questions_and_answers(query.query)
     result = []
-    kb = await menu_kb()
     for number, item in enumerate(Q_A, start=1):
         result.append(InlineQueryResultArticle(id=number,
                                                title=item,
@@ -128,7 +143,7 @@ async def show_question(query: InlineQuery):
                                                    message_text=f'{hbold(item)}\n\n' + Q_A[item],
                                                    disable_web_page_preview=True,
                                                ),
-                                               reply_keyboard=kb,
+                                               thumb_url=photo_url,
                                                description=Q_A[item][:20] + "..."
                                                ))
     await query.answer(results=result)

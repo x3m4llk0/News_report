@@ -18,16 +18,12 @@ async def rules_kb():
 
 async def menu_kb():
     kb = InlineKeyboardBuilder()
-    button_1 = InlineKeyboardButton(text="Продукция", switch_inline_query_current_chat="#Продукция")
-    button_2 = InlineKeyboardButton(text="Поддержка", switch_inline_query_current_chat="#Поддержка")
-    button_3 = InlineKeyboardButton(text="Информация", switch_inline_query_current_chat="#Информация")
     button_4 = InlineKeyboardButton(text="Программа «ДРУЗЬЯ SPLAT»", switch_inline_query_current_chat="#Программа")
-    button_5 = InlineKeyboardButton(text="Задать свой вопрос", callback_data="another_question")
-    button_6 = InlineKeyboardButton(text="❌ Покинуть Сообщество", callback_data="disable_bot")
-    kb.row(button_1)
-    kb.row(button_2)
-    kb.row(button_3)
+    button_1 = InlineKeyboardButton(text="Продукция", switch_inline_query_current_chat="#Продукция")
+    button_5 = InlineKeyboardButton(text="Техподдержка", callback_data="another_question")
+    button_6 = InlineKeyboardButton(text="❌ Покинуть Сообщество", callback_data="disable_bot_approve")
     kb.row(button_4)
+    kb.row(button_1)
     kb.row(button_5)
     kb.row(button_6)
     return kb.as_markup()
@@ -39,3 +35,10 @@ async def back_to_menu_kb():
     kb.row(button)
     return kb.as_markup()
 
+
+async def approve_disable_bot():
+    kb = InlineKeyboardBuilder()
+    yes = InlineKeyboardButton(text="🥲 Да", callback_data="disable_bot")
+    no = InlineKeyboardButton(text="🥳 Нет", callback_data="not_disable_bot")
+    kb.row(yes, no)
+    return kb.as_markup()
