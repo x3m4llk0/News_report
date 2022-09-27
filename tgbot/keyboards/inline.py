@@ -23,8 +23,8 @@ async def menu_kb():
     button_5 = InlineKeyboardButton(text="Техподдержка", callback_data="another_question")
     button_6 = InlineKeyboardButton(text="❌ Покинуть Сообщество", callback_data="disable_bot_approve")
     kb.row(button_4)
-    kb.row(button_1)
     kb.row(button_5)
+    kb.row(button_1)
     kb.row(button_6)
     return kb.as_markup()
 

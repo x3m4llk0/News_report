@@ -21,7 +21,7 @@ async def user_start(message: Message):
             f'!Нажимая на кнопку «Принять», я соглашаюсь  с Правилами Программы и даю согласие на обработку '
             f'моих персональных данных согласно  Политике конфиденциальности'
         ), reply_markup=await rules_kb())
-    await message.answer("Выберете один из пунктов меню 👇", reply_markup=await menu_kb())
+    await message.answer("Выберите нужный пункт меню 👇", reply_markup=await menu_kb())
 
 
 @user_router.message(commands=["menu"], state=None)
@@ -33,35 +33,43 @@ async def user_start(message: Message):
             f'!Нажимая на кнопку «Принять», я соглашаюсь  с Правилами Программы и даю согласие на обработку '
             f'моих персональных данных согласно  Политике конфиденциальности'
         ), reply_markup=await rules_kb())
-    await message.answer("Выберете один из пунктов меню 👇", reply_markup=await menu_kb())
+    await message.answer("Выберите нужный пункт меню 👇", reply_markup=await menu_kb())
 
 
 @user_router.message(commands=["stop_dialog"])
 async def stop_dialog(message: Message, state: FSMContext, event_update: Update):
     await state.clear()
     await send_upd(event_update.json(), close_session=True)
-    await message.answer("Сессия завершена можете дальше пользоваться ботом", reply_markup=await back_to_menu_kb())
+    await message.answer("Сессия завершена можете дальше пользоваться ботом» заменить на "
+                         "«Ваше обращение принято, сессия завершена. Можете пользоваться ботом дальше", reply_markup=await back_to_menu_kb())
 
 
 @user_router.callback_query(text="accept_rules")
 async def accept_rules(call: CallbackQuery):
     await create_user(call.message.chat.id, username=call.message.chat.username, is_active=True)
     await send_to_api(call.message.chat.id, title="Подтвердил правила", name="start")
-    await call.message.edit_text("Выберете один из пунктов меню 👇", reply_markup=await menu_kb())
+    await call.message.edit_text("\n".join(
+        [
+            f'{hbold("Ура, спасибо, что вы с нами!")}',
+            f'Добро пожаловать в клуб «Друзей SPLAT»! Вот ссылка на наш закрытый канал: '
+            f'https://t.me/+dCKPtkvgTvY5OWEy. Подпишитесь на него – именно там будут '
+            f'происходить все основные активности.'
+        ]
+    ), reply_markup=await menu_kb(), disable_web_page_preview=True)
 
 
 @user_router.callback_query(text="back_to_menu", state="*")
 async def back_to_menu(call: CallbackQuery, state: FSMContext):
     await state.clear()
     await send_to_api(call.message.chat.id)
-    await call.message.edit_text("Выберете один из пунктов меню 👇", reply_markup=await menu_kb())
+    await call.message.edit_text("Выберите нужный пункт меню 👇", reply_markup=await menu_kb())
 
 
 @user_router.callback_query(text="cancel_rules")
 async def cancel_rules(call: CallbackQuery):
     await send_to_api(call.message.chat.id)
     await send_to_api(call.message.chat.id, title="Отклонил правила", name="cancel_rules")
-    await call.message.edit_text("❌ Вы не согласились с правилами")
+    await call.message.edit_text("Жаль, что вы не с нами! Но если передумаете, то возвращайтесь, нажав /start")
 
 
 @user_router.callback_query(text="disable_bot_approve")
@@ -85,8 +93,8 @@ async def cancel_rules(call: CallbackQuery):
 
 @user_router.callback_query(text="another_question")
 async def another_question(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Не нашли ответа на свой вопрос?\n\n"
-                                 "Напишите его нам в окошке сообщений. Мы обязательно вернемся к вам с ответом!",
+    await call.message.edit_text("Не нашли ответ на свой вопрос? \n\n"
+                                 "Напишите его нам в окошке сообщений. Мы обязательно вернемся к вам с ответом!)",
                                  reply_markup=await back_to_menu_kb())
     await state.set_state(dialog.session)
 
@@ -98,14 +106,14 @@ async def dialog_with_manager(message: Message, event_update: Update):
     if message.text:
         if message.text.startswith("/"):
             return message.answer(
-                f"Команда {message.text} не доступна в сессии с менеджером, для завершения сессии используйте"
-                f"используйте команду /stop_dialog")
+                f"Для продолжения работы нажмите /stop_dialog")
     if session:
         await send_upd(event_update.json())
     else:
         await send_upd(event_update.json(), True)
         await create_session(user_id=message.chat.id)
-    await message.answer("Ваше сообщение отправлено менеджеру, для остановки чата пропишите команду, /stop_dialog")
+    await message.answer("Спасибо за ваш вопрос! Мы отправили его менеджеру, "
+                         "он свяжется с вами скоро! Для остановки чата нажмите /stop_dialog")
 
 
 @user_router.inline_query(text="#Продукция")

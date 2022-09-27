@@ -7,8 +7,9 @@ echo_router = Router()
 @echo_router.message(F.text, F.via_bot == None, state=None)
 async def bot_echo(message: types.Message):
     text = [
-        f"Команды {hbold(message.text)} нету.\n",
-        f"Для просмотра команд выполните команду /menu либо /start",
+        f"Команды {hbold(message.text)} нет.\n",
+        f"Кажется, вы слегка промахнулись. С кем не бывает! ",
+        f"Для возврата в главное меню нажмите /menu",
     ]
 
     await message.answer('\n'.join(text))
