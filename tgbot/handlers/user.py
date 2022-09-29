@@ -17,9 +17,9 @@ async def user_start(message: Message):
     user = await get_user(message.chat.id)
     if not user or not user.is_active:
         return await message.answer(hbold(
-            f'Рады приветствовать вас в чат-боте «Друзья SPLAT»'
-            f'!Нажимая на кнопку «Принять», я соглашаюсь  с Правилами Программы и даю согласие на обработку '
-            f'моих персональных данных согласно  Политике конфиденциальности'
+            f'Привет! Мы рады видеть вас в чате-боте «Друзья SPLAT»! Нажимая на кнопку'
+            f'«Принять», вы соглашаетесь с Правилами Программы и '
+            f'даете согласие на обработку ваших персональных данных, согласно Политике конфиденциальности.'
         ), reply_markup=await rules_kb())
     await message.answer("Выберите нужный пункт меню 👇", reply_markup=await menu_kb())
 
@@ -29,9 +29,9 @@ async def user_start(message: Message):
     user = await get_user(message.chat.id)
     if not user or not user.is_active:
         return await message.answer(hbold(
-            f'Рады приветствовать вас в чат-боте «Друзья SPLAT»'
-            f'!Нажимая на кнопку «Принять», я соглашаюсь  с Правилами Программы и даю согласие на обработку '
-            f'моих персональных данных согласно  Политике конфиденциальности'
+            f'Привет! Мы рады видеть вас в чате-боте «Друзья SPLAT»! Нажимая на кнопку'
+            f'«Принять», вы соглашаетесь с Правилами Программы и '
+            f'даете согласие на обработку ваших персональных данных, согласно Политике конфиденциальности.'
         ), reply_markup=await rules_kb())
     await message.answer("Выберите нужный пункт меню 👇", reply_markup=await menu_kb())
 
@@ -40,8 +40,9 @@ async def user_start(message: Message):
 async def stop_dialog(message: Message, state: FSMContext, event_update: Update):
     await state.clear()
     await send_upd(event_update.json(), close_session=True)
-    await message.answer("Сессия завершена можете дальше пользоваться ботом» заменить на "
-                         "«Ваше обращение принято, сессия завершена. Можете пользоваться ботом дальше", reply_markup=await back_to_menu_kb())
+    await message.answer(
+        "Ваше обращение принято, сессия завершена. Можете пользоваться ботом дальше (Возврат в меню)",
+        reply_markup=await back_to_menu_kb())
 
 
 @user_router.callback_query(text="accept_rules")
@@ -97,12 +98,15 @@ async def another_question(call: CallbackQuery, state: FSMContext):
                                  "Напишите его нам в окошке сообщений. Мы обязательно вернемся к вам с ответом!)",
                                  reply_markup=await back_to_menu_kb())
     await state.set_state(dialog.session)
+    await state.update_data(count=0)
 
 
 @user_router.message(state=dialog.session)
-async def dialog_with_manager(message: Message, event_update: Update):
+async def dialog_with_manager(message: Message, event_update: Update, state: FSMContext):
     session = await get_session(user_id=message.chat.id)
     await send_to_api(message.chat.id)
+    data = await state.get_data()
+    count = data.get("count")
     if message.text:
         if message.text.startswith("/"):
             return message.answer(
@@ -112,13 +116,13 @@ async def dialog_with_manager(message: Message, event_update: Update):
     else:
         await send_upd(event_update.json(), True)
         await create_session(user_id=message.chat.id)
-    await message.answer("Спасибо за ваш вопрос! Мы отправили его менеджеру, "
-                         "он свяжется с вами скоро! Для остановки чата нажмите /stop_dialog")
+    if count == 0:
+        await message.answer("Спасибо за ваш вопрос! Мы отправили его менеджеру, "
+                             "он свяжется с вами скоро! Для остановки чата нажмите /stop_dialog")
+        await state.update_data(count=1)
 
 
 @user_router.inline_query(text="#Продукция")
-@user_router.inline_query(text="#Поддержка")
-@user_router.inline_query(text="#Информация")
 @user_router.inline_query(text="#Программа")
 async def show_question(query: InlineQuery):
     user_id = query.from_user.id
@@ -131,13 +135,9 @@ async def show_question(query: InlineQuery):
             cache_time=5
         )
         return
-    if query.query == "Продукция":
+    if query.query == "#Продукция":
         name = "question"
         photo_url = "https://i.imgur.com/eyU7EDv.png"
-    elif query.query == "Поддержка":
-        name = "support_inline"
-    elif query.query == "Информация":
-        name = "info_inline"
     else:
         name = "program_inline"
         photo_url = "https://i.imgur.com/OvIeJEg.png"
