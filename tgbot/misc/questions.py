@@ -1,7 +1,10 @@
+from aiogram.utils.markdown import hlink
+
+
 async def questions_and_answers(type_questions):
     products = {
         "Где я могу купить продукцию SPLAT GLOBAL?":
-            "Продукты наших брендов (SPLAT, BioMio, Biomed, INNOVA и др.) вы можете найти:\n"                                    
+            "Продукты наших брендов (SPLAT, BioMio, Biomed, INNOVA и др.) вы можете найти:\n"
             "-  на маркетплейсах OZON, Wildberries, Yandex Market, AliExpress;\n"
             "- в федеральных сетевых магазинах «Пятерочка», «Дикси», «Магнит»; \n"
             "- в федеральных сетевых гипермаркетах «Перекресток», «Лента», «Ашан»;\n"
@@ -32,8 +35,11 @@ async def questions_and_answers(type_questions):
             "Тестировать новинки, голосовать за лучшие идеи и дизайны, обсуждать актуальные вопросы на тему ухода "
             "за собой, а также получать эксклюзивную информацию от экспертов компании SPLAT GLOBAL.",
         "Где посмотреть правила участия?":
-            "Полные правила участия в программе вы всегда можете найти в этом чат-боте, нажав на кнопку "
-            "«Правила Участия в программе».",
+            "Полные правила участия в программе вы всегда можете найти в этом чат-боте, перейдя по ссылке"
+            f"«{hlink('Правила Участия в программе', 'https://promo.splatglobal.com/wp-content/landings/ambassador/upload/rules.pdf')}».",
+        "Где посмотреть политику конфиденциальности?":
+            "Полную политику конфиденциальности вы всегда можете найти в этом чат-боте, перейдя по ссылке "
+            f"«{hlink('Политика конфиденциальности', 'https://promo.splatglobal.com/wp-content/landings/ambassador/upload/policy.pdf')}».",
         "Могу ли я пригласить друга участвовать в программе?":
             "Стать участником программы возможно только после самостоятельной подачи "
             "заявки на сайте https://promo.splatglobal.com/friends/. Вы можете отправить ссылку "
@@ -57,4 +63,3 @@ async def questions_and_answers(type_questions):
         return info
     elif type_questions == "#Программа":
         return proposal
-
