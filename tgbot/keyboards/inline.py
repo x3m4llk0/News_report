@@ -6,7 +6,7 @@ async def rules_kb():
     kb = InlineKeyboardBuilder()
     rules = InlineKeyboardButton(text="Правила Программы",
                                  url="https://promo.splatglobal.com/wp-content/landings/ambassador/upload/rules.pdf")
-    policy = InlineKeyboardButton(text="Политику конфиденциальности ",
+    policy = InlineKeyboardButton(text="Политика конфиденциальности ",
                                   url="https://promo.splatglobal.com/wp-content/landings/ambassador/upload/policy.pdf")
     accept = InlineKeyboardButton(text="✅ Принять", callback_data="accept_rules")
     cancel = InlineKeyboardButton(text="❌ Отказаться", callback_data="cancel_rules")
