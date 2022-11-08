@@ -1,11 +1,11 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 async def rules_kb():
     kb = InlineKeyboardBuilder()
     rules = InlineKeyboardButton(text="Правила Программы",
-                                 url="https://promo.splatglobal.com/wp-content/landings/ambassador/upload/rules.pdf")
+                                 callback_data="rules")
     policy = InlineKeyboardButton(text="Политика конфиденциальности ",
                                   url="https://promo.splatglobal.com/wp-content/landings/ambassador/upload/policy.pdf")
     accept = InlineKeyboardButton(text="✅ Принять", callback_data="accept_rules")

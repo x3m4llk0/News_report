@@ -1,6 +1,7 @@
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, Update, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
+from aiogram.types import Message, CallbackQuery, Update, InlineQuery, InlineQueryResultArticle, \
+    InputTextMessageContent, FSInputFile
 from aiogram.utils.markdown import hbold
 
 from tgbot.keyboards.inline import rules_kb, menu_kb, back_to_menu_kb, approve_disable_bot
@@ -34,6 +35,12 @@ async def user_start(message: Message):
             f'даете согласие на обработку ваших персональных данных, согласно Политике конфиденциальности.'
         ), reply_markup=await rules_kb())
     await message.answer("Выберите нужный пункт меню 👇", reply_markup=await menu_kb())
+
+
+@user_router.callback_query(text="rules")
+async def rules(call: CallbackQuery):
+    file = FSInputFile(f'Правила.docx')
+    await call.message.answer_document(document=file)
 
 
 @user_router.message(commands=["stop_dialog"])
