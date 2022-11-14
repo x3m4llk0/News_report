@@ -39,7 +39,7 @@ async def user_start(message: Message):
 
 @user_router.callback_query(text="rules")
 async def rules(call: CallbackQuery):
-    file = FSInputFile(f'Правила.docx')
+    file = FSInputFile(f'rules_friends.pdf')
     await call.message.answer_document(document=file)
 
 
