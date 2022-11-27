@@ -36,15 +36,6 @@ class TimeBaseModel(BaseModel):
                         server_default=db.func.now())
 
 
-class User(TimeBaseModel):
-    __tablename__ = 'user'
-    id = Column(BigInteger, primary_key=True)
-    username = Column(String(100), default=None)
-    is_active = Column(db.Boolean, default=False)
-
-    query: sql.Select
-
-
 class Sessions(TimeBaseModel):
     __tablename__ = 'session'
     user_id = Column(BigInteger, primary_key=True)
@@ -56,6 +47,12 @@ async def on_startup(dispatcher: Dispatcher):
     print("Установка связи с PostgreSQL")
     await db.set_bind(f"postgresql://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.database}")
     print("Готово")
+
+
+    # print("Удаление базы данных")
+    # await db.gino.drop_all()
+
+
     print("Создаем таблицу")
     await db.gino.create_all()
     print("Готово")

@@ -5,3 +5,4 @@ asyncpg
 gino
 loguru
 requests
+aiocsv
