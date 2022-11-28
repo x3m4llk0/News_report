@@ -16,3 +16,6 @@ class ChangeRoleCB(CallbackData, prefix="change_role"):
 
 class ChangeAccessCB(CallbackData, prefix="change_role"):
     user_id: int
+
+class DeleteUserCB(CallbackData, prefix="delete_user"):
+    user_id: int

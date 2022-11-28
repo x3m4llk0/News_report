@@ -5,7 +5,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import time
 from loader import config
-from tgbot.keyboards.news_callback import ChangeRoleCB, ChangeAccessCB
+from tgbot.keyboards.news_callback import ChangeRoleCB, ChangeAccessCB, DeleteUserCB
 from tgbot.models import db_commands as commands
 import os
 
@@ -159,7 +159,6 @@ async def my_team_export(message: Message):
         await message.answer(f"Вы не являетесь начальником сектора или администратором")
 
 
-
 @admin_router.message(commands=["changeaccess"])
 async def changeaccess(message: Message):
     user = await commands.select_user(user_id=message.from_user.id)
@@ -191,6 +190,8 @@ async def change_access_new(call: CallbackQuery):
     for user in users:
         # пропускает текущего пользователя
         if call.from_user.id == user.user_id:
+            continue
+        if user.role != 'expert':
             continue
         user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
                                     callback_data=ChangeAccessCB(user_id=user.user_id).pack())
@@ -231,3 +232,38 @@ async def return_access(call: CallbackQuery):
     await commands.update_access(user_id=user.user_id, access=new_access)
     await call.message.edit_text(
         text=f'Права согласования возвращены НС {user.first_name} {user.last_name}')
+
+
+#
+@admin_router.message(commands=["delete"])
+async def delete(message: Message):
+
+    if message.from_user.id in config.tg_bot.admin_ids:
+        users = await commands.select_all_users()
+        keyboard = InlineKeyboardBuilder()
+        for user in users:
+            user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
+                                        callback_data=DeleteUserCB(user_id=user.user_id).pack())
+            keyboard.row(user)
+        quit_button = InlineKeyboardButton(text='Отменить', callback_data='delete_stop')
+        keyboard.adjust(4)
+        keyboard.row(quit_button)
+        await message.answer(text="Выберите сотрудника для удаления", reply_markup=keyboard.as_markup())
+    else:
+        await message.answer(f"Вы не являетесь администратором")
+
+
+@admin_router.callback_query(text='delete_stop')
+async def delete_stop(call: CallbackQuery, bot: Bot):
+    await call.message.edit_text(text="Вы отменили удаление пользователя ⚠", reply_markup=None)
+
+
+@admin_router.callback_query(DeleteUserCB.filter())
+async def delete_user_cb(call: CallbackQuery, callback_data: DeleteUserCB):
+    await call.answer(cache_time=60)
+    user_id = callback_data.user_id
+    print(user_id)
+    user = await commands.select_user(user_id=user_id)
+    await commands.delete_user(user_id)
+    await call.message.edit_text(
+        text=f'Сотрудник {user.first_name} {user.last_name} удален')

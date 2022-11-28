@@ -43,7 +43,7 @@ async def select_user_role(role):
 
 # Функция удаления пользователя
 async def delete_user(user_id: int):
-    await User.delete.where(User.id == user_id).gino.status()
+    await User.delete.where(User.user_id == user_id).gino.status()
 
 
 # Функция которая выбирает по User_Id
