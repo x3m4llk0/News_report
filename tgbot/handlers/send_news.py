@@ -28,7 +28,7 @@ async def add_photo(message: types.Message, state: FSMContext):
         await message.answer(text='Для отправки новости на согласование зарегистрируйся по команде /start')
     else:
         quit_markup = InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text='Отменить', callback_data='quit')]])
+            inline_keyboard=[[InlineKeyboardButton(text='Отменить', callback_data='quit_sn')]])
         await message.answer(text='Пришлите фото новости', reply_markup=quit_markup)
         await state.set_state(send_news.photo)
 
@@ -37,7 +37,7 @@ async def add_photo(message: types.Message, state: FSMContext):
 async def add_text(message: types.Message, state: FSMContext):
     photo_file_id = message.photo[-1].file_id
     await state.update_data(photo=photo_file_id)
-    quit_markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Отменить', callback_data='quit')]])
+    quit_markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Отменить', callback_data='quit_sn')]])
     await message.answer(text='Введите описание задачи и новости:', reply_markup=quit_markup)
     await state.set_state(send_news.text)
 
@@ -51,7 +51,7 @@ async def mailing_text(message: types.Message, state: FSMContext):
                                   inline_keyboard=[
                                       [
                                           InlineKeyboardButton(text='Отправить ⏱', callback_data='next'),
-                                          InlineKeyboardButton(text='Отменить', callback_data='quit')
+                                          InlineKeyboardButton(text='Отменить', callback_data='quit_sn')
                                       ]
                                   ])
     message_id_user = await message.answer_photo(photo=photo, caption=f'Суть новости: {text}', reply_markup=markup)
@@ -59,7 +59,7 @@ async def mailing_text(message: types.Message, state: FSMContext):
     await state.update_data(text=text, message_id_user=message_id_user.message_id)
 
 
-@send_news_router.callback_query(text='quit', state=[send_news.photo, send_news.text])
+@send_news_router.callback_query(text='quit_sn', state=[send_news.photo, send_news.text])
 async def quit(call: types.CallbackQuery, state: FSMContext, bot: Bot):
     await state.clear()
     await call.message.delete()
@@ -73,7 +73,7 @@ async def quit(call: types.CallbackQuery, state: FSMContext, bot: Bot):
 @send_news_router.callback_query(text='next', state=send_news.text)
 async def start(call: types.CallbackQuery, state: FSMContext, bot: Bot):
     await call.message.edit_reply_markup(reply_markup=None)
-    users = await commands.user_rights()
+    users = await commands.user_rights_access()
     data = await state.get_data()
     sender = await commands.select_user(call.from_user.id)
 

@@ -28,7 +28,7 @@ async def chose_role(message: Message):
                                                     InlineKeyboardButton(text='Аналитик', callback_data='cr_to_analyst')
                                                 ],
                                                 [
-                                                    InlineKeyboardButton(text='Отменить', callback_data='quit')
+                                                    InlineKeyboardButton(text='Отменить', callback_data='quit_cr')
                                                 ]
                                             ])
             await message.answer(text="Кем назначаем?", reply_markup=keyboard)
@@ -41,7 +41,7 @@ async def chose_role(message: Message):
                                                     InlineKeyboardButton(text='Аналитик', callback_data='cr_to_analyst')
                                                 ],
                                                 [
-                                                    InlineKeyboardButton(text='Отменить', callback_data='quit')
+                                                    InlineKeyboardButton(text='Отменить', callback_data='quit_cr')
                                                 ]
                                             ])
             await message.answer(text="Кем назначаем?", reply_markup=keyboard)
@@ -49,7 +49,7 @@ async def chose_role(message: Message):
         await message.answer(f"Вы не являетесь начальником сектора или администратором")
 
 
-@admin_router.callback_query(text='quit')
+@admin_router.callback_query(text='quit_cr')
 async def quit(call: CallbackQuery, bot: Bot):
     await call.message.edit_text(text="Вы отменили назначение роли ⚠", reply_markup=None)
 
@@ -88,7 +88,7 @@ async def change_user(call: CallbackQuery, bot: Bot):
             user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
                                         callback_data=ChangeRoleCB(user_id=user.user_id, new_role=new_role).pack())
             keyboard.add(user)
-        quit_button = InlineKeyboardButton(text='Отменить', callback_data='quit')
+        quit_button = InlineKeyboardButton(text='Отменить', callback_data='quit_cr')
         keyboard.adjust(3)
         keyboard.row(quit_button)
         await call.message.edit_text(text="Выберите сотрудника для присвоения роли", reply_markup=keyboard.as_markup())

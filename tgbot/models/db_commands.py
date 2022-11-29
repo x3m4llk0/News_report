@@ -73,6 +73,7 @@ async def user_rights_access():
     users_access = await User.query.where(User.access == 'SuperUser').gino.all()
     return users_access
 
+
 async def user_rights_role():
     users_access = await User.query.where(User.role == 'team_leader').gino.all()
     return users_access
