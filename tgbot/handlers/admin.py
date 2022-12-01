@@ -19,8 +19,8 @@ roles = {'team_leader': 'Начальник сектора', 'expert': 'Эксп
 @admin_router.message(commands=["changerole"])
 async def chose_role(message: Message):
     user = await commands.select_user(user_id=message.from_user.id)
-    if user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
-        if user.role == 'team_leader':
+    if user is not None and user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
+        if user is not None and user.role == 'team_leader':
             keyboard = InlineKeyboardMarkup(row_width=2,
                                             inline_keyboard=[
                                                 [
@@ -50,7 +50,7 @@ async def chose_role(message: Message):
 
 
 @admin_router.callback_query(text='quit_cr')
-async def quit(call: CallbackQuery, bot: Bot):
+async def quit_cr(call: CallbackQuery, bot: Bot):
     await call.message.edit_text(text="Вы отменили назначение роли ⚠", reply_markup=None)
 
 
@@ -59,8 +59,8 @@ async def change_user(call: CallbackQuery, bot: Bot):
     new_role = call.data[6:]
     changer = await commands.select_user(user_id=call.from_user.id)
     users = await commands.select_all_users()
-    if changer.role == 'team_leader':
-        keyboard = InlineKeyboardBuilder()
+    keyboard = InlineKeyboardBuilder()
+    if changer is not None and changer.role == 'team_leader':
         for user in users:
             # пропускает текущего пользователя
             if call.from_user.id == user.user_id:
@@ -71,14 +71,8 @@ async def change_user(call: CallbackQuery, bot: Bot):
             user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
                                         callback_data=ChangeRoleCB(user_id=user.user_id, new_role=new_role).pack())
             keyboard.row(user)
-        quit_button = InlineKeyboardButton(text='Отменить', callback_data='quit')
-        keyboard.adjust(3)
-        keyboard.row(quit_button)
-        await call.message.edit_text(text="Выберите сотрудника для присвоения роли", reply_markup=keyboard.as_markup())
-
 
     elif call.from_user.id in config.tg_bot.admin_ids:
-        keyboard = InlineKeyboardBuilder()
         for user in users:
             # пропускает текущего пользователя
             # if call.from_user.id == user.user_id:
@@ -88,10 +82,10 @@ async def change_user(call: CallbackQuery, bot: Bot):
             user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
                                         callback_data=ChangeRoleCB(user_id=user.user_id, new_role=new_role).pack())
             keyboard.add(user)
-        quit_button = InlineKeyboardButton(text='Отменить', callback_data='quit_cr')
-        keyboard.adjust(3)
-        keyboard.row(quit_button)
-        await call.message.edit_text(text="Выберите сотрудника для присвоения роли", reply_markup=keyboard.as_markup())
+    quit_button = InlineKeyboardButton(text='Отменить', callback_data='quit_cr')
+    keyboard.adjust(3)
+    keyboard.row(quit_button)
+    await call.message.edit_text(text="Выберите сотрудника для присвоения роли", reply_markup=keyboard.as_markup())
 
 
 @admin_router.callback_query(ChangeRoleCB.filter())
@@ -109,7 +103,7 @@ async def change_role(call: CallbackQuery, callback_data: ChangeRoleCB):
 @admin_router.message(commands=["my_team"])
 async def my_team(message: Message):
     user = await commands.select_user(user_id=message.from_user.id)
-    if user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
+    if user is not None and user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
         text = ""
         users = await commands.select_all_users()
         for user in users:
@@ -123,8 +117,8 @@ async def my_team(message: Message):
 
 @admin_router.message(commands=["my_team_export"])
 async def my_team_export(message: Message):
-    team_leader = await commands.select_user(user_id=message.from_user.id)
-    if team_leader.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
+    changer = await commands.select_user(user_id=message.from_user.id)
+    if changer is not None and changer.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
         await message.answer('CSV файл загружается...')
         users = await commands.select_all_users()
         filename = f'logs/my_team.csv'
@@ -162,7 +156,7 @@ async def my_team_export(message: Message):
 @admin_router.message(commands=["changeaccess"])
 async def changeaccess(message: Message):
     user = await commands.select_user(user_id=message.from_user.id)
-    if user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids or user.access == 'SuperUser':
+    if user is not None and user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids or user.access == 'SuperUser':
         keyboard = InlineKeyboardMarkup(row_width=2,
                                         inline_keyboard=[
                                             [
@@ -187,19 +181,25 @@ async def change_access_new(call: CallbackQuery):
     changer = await commands.select_user(user_id=call.from_user.id)
     users = await commands.select_all_users()
     keyboard = InlineKeyboardBuilder()
-    for user in users:
-        # пропускает текущего пользователя
-        if call.from_user.id == user.user_id:
-            continue
-        if user.role != 'expert':
-            continue
-        user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
-                                    callback_data=ChangeAccessCB(user_id=user.user_id).pack())
-        keyboard.row(user)
+    if changer is not None and changer.role == 'team_leader':
+        for user in users:
+            # пропускает текущего пользователя
+            if call.from_user.id == user.user_id:
+                continue
+            if user.role != 'expert':
+                continue
+            user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
+                                        callback_data=ChangeAccessCB(user_id=user.user_id).pack())
+            keyboard.row(user)
+    elif call.from_user.id in config.tg_bot.admin_ids:
+        for user in users:
+            user = InlineKeyboardButton(text=f'{user.last_name} {user.first_name[0]}.',
+                                        callback_data=ChangeAccessCB(user_id=user.user_id).pack())
+            keyboard.row(user)
     quit_button = InlineKeyboardButton(text='Отменить', callback_data='quit_ca')
     keyboard.adjust(2)
     keyboard.row(quit_button)
-    await call.message.edit_text(text="Выберите сотрудника для присвоения роли", reply_markup=keyboard.as_markup())
+    await call.message.edit_text(text="Выберите сотрудника для замещения", reply_markup=keyboard.as_markup())
 
 
 @admin_router.callback_query(text='quit_ca')

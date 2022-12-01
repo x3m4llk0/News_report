@@ -55,7 +55,6 @@ async def mailing_text(message: types.Message, state: FSMContext):
                                       ]
                                   ])
     message_id_user = await message.answer_photo(photo=photo, caption=f'Суть новости: {text}', reply_markup=markup)
-    print(message_id_user.message_id)
     await state.update_data(text=text, message_id_user=message_id_user.message_id)
 
 
