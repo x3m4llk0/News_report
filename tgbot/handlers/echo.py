@@ -1,11 +1,12 @@
 from aiogram import types, Router, F
+from aiogram.filters import Text
 from aiogram.utils.markdown import hbold
 from aiogram import Bot
 
 echo_router = Router()
 
 
-@echo_router.message(F.text, F.via_bot == None, state=None)
+@echo_router.message()
 async def bot_echo(message: types.Message):
     text = [
         f"Команды {hbold(message.text)} нет.\n",

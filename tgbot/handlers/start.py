@@ -1,23 +1,29 @@
-from aiogram import Router, types
+from aiogram.filters import Command, Text
 from aiogram.filters.command import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram import types
-from aiogram import Bot
+from aiogram import Bot, F, types, Router
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 # from aiogram.types import Message, CallbackQuery, Update, InlineQuery, InlineQueryResultArticle, InputTextMessageContent, FSInputFile
 from aiogram.utils.markdown import hbold
 
+
 from loader import config
+
 from tgbot.keyboards.inline import rules_kb, menu_kb, back_to_menu_kb, approve_disable_bot
 from tgbot.misc.platform_api import send_upd, send_to_api
 from tgbot.misc.questions import questions_and_answers
 from tgbot.misc.states import dialog, registration
 from tgbot.models import db_commands as commands
 
+from aiogram_dialog import DialogManager, StartMode
+from aiogram_dialog import DialogRegistry
+from aiogram_dialog import Dialog
+
+
 user_router = Router()
 
 
-@user_router.message(commands=["start"], state=None)
+@user_router.message((Command(commands=["start"])))
 async def bot_start(message: types.Message, state: FSMContext, bot: Bot):
     user = await commands.select_user(message.from_user.id)
     if not user or not user.is_active:
@@ -40,7 +46,7 @@ async def bot_start(message: types.Message, state: FSMContext, bot: Bot):
 
 
 ## Продолжение регистрцации
-@user_router.message(state=registration.first_name)
+@user_router.message(registration.first_name)
 async def first_name_user(message: types.Message, state: FSMContext):
     first_name = message.text.capitalize()
     await state.update_data(first_name=first_name)
@@ -48,7 +54,7 @@ async def first_name_user(message: types.Message, state: FSMContext):
     await state.set_state(registration.last_name)
 
 
-@user_router.message(state=registration.last_name)
+@user_router.message(registration.last_name)
 async def last_name_user(message: types.Message, state: FSMContext):
     data = await state.get_data()
     first_name = data.get('first_name')
@@ -69,14 +75,14 @@ async def last_name_user(message: types.Message, state: FSMContext):
     await state.clear()
 
 
-@user_router.callback_query(text='quit', state=[registration.last_name, registration.first_name])
+@user_router.callback_query(Text('quit'))
 async def quit(call: types.CallbackQuery, state: FSMContext, bot: Bot):
     await state.clear()
     await call.message.delete()
     await bot.send_message(chat_id=call.from_user.id, text="Вы отменили регистрацию ⚠")
 
 
-@user_router.message(commands=["help"], state=None)
+@user_router.message(Command("help"))
 async def help(message: types.Message):
     user = await commands.select_user(user_id=message.from_user.id)
     if not user or user.status != "active":
@@ -96,6 +102,3 @@ async def help(message: types.Message):
                                  f"/news - позволяет отправлять новость на согласование")
 
 
-
-@user_router.message(commands=["lifehacks"], state=None)
-async def lifehacks(message: types.Message):

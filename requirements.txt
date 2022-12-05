@@ -1,4 +1,4 @@
-aiogram==3.0.0b4
+aiogram==3.0.0b6
 aiogram-dialog==2.0.0b15
 aioredis~=2.0
 environs~=9.0

@@ -1,4 +1,5 @@
 from aiogram import Router, types
+from aiogram.filters import Command, Text
 from aiogram.filters.callback_data import CallbackData
 from aiogram.filters.command import CommandStart
 from aiogram.fsm.context import FSMContext
@@ -6,7 +7,7 @@ from aiogram import types
 from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from magic_filter import F
+from aiogram import F
 # from aiogram.types import Message, CallbackQuery, Update, InlineQuery, InlineQueryResultArticle, InputTextMessageContent, FSInputFile
 from aiogram.utils.markdown import hbold
 
@@ -21,7 +22,7 @@ from tgbot.models import db_commands as commands
 send_news_router = Router()
 
 
-@send_news_router.message(commands=["news"], state=None)
+@send_news_router.message(Command("news"))
 async def add_photo(message: types.Message, state: FSMContext):
     user = await commands.select_user(message.from_user.id)
     if not user or user.status != "active":
@@ -33,8 +34,9 @@ async def add_photo(message: types.Message, state: FSMContext):
         await state.set_state(send_news.photo)
 
 
-@send_news_router.message(state=send_news.photo, content_types=types.ContentType.PHOTO)
+@send_news_router.message(send_news.photo, F.photo)
 async def add_text(message: types.Message, state: FSMContext):
+
     photo_file_id = message.photo[-1].file_id
     await state.update_data(photo=photo_file_id)
     quit_markup = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Отменить', callback_data='quit_sn')]])
@@ -42,8 +44,9 @@ async def add_text(message: types.Message, state: FSMContext):
     await state.set_state(send_news.text)
 
 
-@send_news_router.message(state=send_news.text)
+@send_news_router.message(send_news.text)
 async def mailing_text(message: types.Message, state: FSMContext):
+    await message.delete_reply_markup()
     data = await state.get_data()
     text = message.text
     photo = data.get('photo')
@@ -58,7 +61,7 @@ async def mailing_text(message: types.Message, state: FSMContext):
     await state.update_data(text=text, message_id_user=message_id_user.message_id)
 
 
-@send_news_router.callback_query(text='quit_sn', state=[send_news.photo, send_news.text])
+@send_news_router.callback_query(Text('quit_sn'))
 async def quit(call: types.CallbackQuery, state: FSMContext, bot: Bot):
     await state.clear()
     await call.message.delete()
@@ -69,7 +72,7 @@ async def quit(call: types.CallbackQuery, state: FSMContext, bot: Bot):
 
 
 
-@send_news_router.callback_query(text='next', state=send_news.text)
+@send_news_router.callback_query(Text('next'))
 async def start(call: types.CallbackQuery, state: FSMContext, bot: Bot):
     await call.message.edit_reply_markup(reply_markup=None)
     users = await commands.user_rights_access()
@@ -137,7 +140,7 @@ async def reply_answer_yes(call: types.CallbackQuery,callback_data: NewsCallBack
         await state.set_state(send_news.reason)
 
 
-@send_news_router.message(state=send_news.reason)
+@send_news_router.message(send_news.reason)
 async def mailing_text(message: types.Message, state: FSMContext, bot: Bot):
     text = message.text
     data = await state.get_data()

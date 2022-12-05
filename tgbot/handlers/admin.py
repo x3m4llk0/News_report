@@ -1,6 +1,7 @@
 import aiofiles
 from aiocsv import AsyncDictWriter
 from aiogram import Router, Bot
+from aiogram.filters import Text
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, FSInputFile
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import time
@@ -8,6 +9,7 @@ from loader import config
 from tgbot.keyboards.news_callback import ChangeRoleCB, ChangeAccessCB, DeleteUserCB
 from tgbot.models import db_commands as commands
 import os
+from aiogram.filters.command import Command
 
 # from tgbot.filters.admin import AdminFilter
 
@@ -16,7 +18,7 @@ admin_router = Router()
 roles = {'team_leader': 'Начальник сектора', 'expert': 'Эксперт', 'analyst': 'Аналитик'}
 
 
-@admin_router.message(commands=["changerole"])
+@admin_router.message(Command("changerole"))
 async def chose_role(message: Message):
     user = await commands.select_user(user_id=message.from_user.id)
     if user is not None and user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
@@ -49,12 +51,12 @@ async def chose_role(message: Message):
         await message.answer(f"Вы не являетесь начальником сектора или администратором")
 
 
-@admin_router.callback_query(text='quit_cr')
+@admin_router.callback_query(Text(text='quit_cr'))
 async def quit_cr(call: CallbackQuery, bot: Bot):
     await call.message.edit_text(text="Вы отменили назначение роли ⚠", reply_markup=None)
 
 
-@admin_router.callback_query(text_contains='cr_to_')
+@admin_router.callback_query(Text(contains='cr_to_'))
 async def change_user(call: CallbackQuery, bot: Bot):
     new_role = call.data[6:]
     changer = await commands.select_user(user_id=call.from_user.id)
@@ -100,7 +102,7 @@ async def change_role(call: CallbackQuery, callback_data: ChangeRoleCB):
         text=f'К сотруднику {user.first_name} {user.last_name} применена роль {roles[new_role]}')
 
 
-@admin_router.message(commands=["my_team"])
+@admin_router.message(Command("my_team"))
 async def my_team(message: Message):
     user = await commands.select_user(user_id=message.from_user.id)
     if user is not None and user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
@@ -115,7 +117,7 @@ async def my_team(message: Message):
         await message.answer(f"Вы не являетесь начальником сектора или администратором")
 
 
-@admin_router.message(commands=["my_team_export"])
+@admin_router.message(Command("my_team_export"))
 async def my_team_export(message: Message):
     changer = await commands.select_user(user_id=message.from_user.id)
     if changer is not None and changer.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids:
@@ -153,7 +155,7 @@ async def my_team_export(message: Message):
         await message.answer(f"Вы не являетесь начальником сектора или администратором")
 
 
-@admin_router.message(commands=["changeaccess"])
+@admin_router.message(Command("changeaccess"))
 async def changeaccess(message: Message):
     user = await commands.select_user(user_id=message.from_user.id)
     if user is not None and user.role == 'team_leader' or message.from_user.id in config.tg_bot.admin_ids or user.access == 'SuperUser':
@@ -176,7 +178,7 @@ async def changeaccess(message: Message):
         await message.answer(f"Вы не являетесь начальником сектора, заместителем или администратором")
 
 
-@admin_router.callback_query(text='ca_to_new')
+@admin_router.callback_query(Text('ca_to_new'))
 async def change_access_new(call: CallbackQuery):
     changer = await commands.select_user(user_id=call.from_user.id)
     users = await commands.select_all_users()
@@ -202,7 +204,7 @@ async def change_access_new(call: CallbackQuery):
     await call.message.edit_text(text="Выберите сотрудника для замещения", reply_markup=keyboard.as_markup())
 
 
-@admin_router.callback_query(text='quit_ca')
+@admin_router.callback_query(Text('quit_ca'))
 async def quit_ca(call: CallbackQuery, bot: Bot):
     await call.message.edit_text(text="Вы отменили назначение заместителя ⚠", reply_markup=None)
 
@@ -221,7 +223,7 @@ async def change_role(call: CallbackQuery, callback_data: ChangeAccessCB):
         text=f'Сотрудник {user.first_name} {user.last_name} назначен заместителем')
 
 
-@admin_router.callback_query(text='ca_to_return')
+@admin_router.callback_query(Text('ca_to_return'))
 async def return_access(call: CallbackQuery):
     await call.answer(cache_time=60)
     new_access = "SuperUser"
@@ -235,7 +237,7 @@ async def return_access(call: CallbackQuery):
 
 
 #
-@admin_router.message(commands=["delete"])
+@admin_router.message(Command("delete"))
 async def delete(message: Message):
 
     if message.from_user.id in config.tg_bot.admin_ids:
@@ -253,7 +255,7 @@ async def delete(message: Message):
         await message.answer(f"Вы не являетесь администратором")
 
 
-@admin_router.callback_query(text='delete_stop')
+@admin_router.callback_query(Command("delete_stop"))
 async def delete_stop(call: CallbackQuery, bot: Bot):
     await call.message.edit_text(text="Вы отменили удаление пользователя ⚠", reply_markup=None)
 
