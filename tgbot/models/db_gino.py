@@ -4,7 +4,7 @@ from typing import List
 import sqlalchemy as sa
 from aiogram import Dispatcher
 from gino import Gino
-from sqlalchemy import Column, DateTime, sql, BigInteger, String
+from sqlalchemy import Column, DateTime, sql, BigInteger, String, Integer
 
 from tgbot.config import load_config
 
@@ -29,7 +29,7 @@ class BaseModel(db.Model):
 class TimeBaseModel(BaseModel):
     __abstract__ = True
 
-    created_at = Column(DateTime(True), server_default=db.func.now())
+    created_at = Column(DateTime(True), default=datetime.datetime.utcnow, server_default=db.func.now())
     updated_at = Column(DateTime(True),
                         default=datetime.datetime.utcnow,
                         onupdate=datetime.datetime.utcnow,
@@ -40,6 +40,12 @@ class Sessions(TimeBaseModel):
     __tablename__ = 'session'
     user_id = Column(BigInteger, primary_key=True)
     query: sql.Select
+
+
+
+
+
+
 
 
 async def on_startup(dispatcher: Dispatcher):
@@ -53,6 +59,6 @@ async def on_startup(dispatcher: Dispatcher):
     # await db.gino.drop_all()
 
 
-    print("Создаем таблицу")
-    await db.gino.create_all()
-    print("Готово")
+    # print("Создаем таблицу")
+    # await db.gino.create_all()
+    # print("Готово")

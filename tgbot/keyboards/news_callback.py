@@ -4,8 +4,15 @@ from typing import Optional
 class NewsCallBack(CallbackData, prefix="news"):
     user_id: str
     message_id_user: Optional[str]
-    message_id_superuser: Optional[str]
-    superuser_id: Optional[str]
+    message_id_agreement: Optional[str]
+    agreement_id: Optional[str]
+    reply_answer: Optional[str]
+
+class NewsTaskCallBack(CallbackData, prefix="news"):
+    user_id: str
+    message_id_user: Optional[str]
+    message_id_agreement: Optional[str]
+    agreement_id: Optional[str]
     reply_answer: Optional[str]
 
 

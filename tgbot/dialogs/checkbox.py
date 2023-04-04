@@ -69,3 +69,61 @@ main_window = Dialog(
         state=CheckBoxDialog.state,
     ),
 )
+
+
+
+
+class RelizDialog(StatesGroup):
+    state_reliz = State()
+
+    async def exit(c: CallbackQuery, _: Button, manager: DialogManager):
+        await c.message.delete()
+        await manager.done()
+
+    async def check_changed(event: ChatEvent, checkbox: ManagedCheckboxAdapter, manager: DialogManager):
+        checkbox.is_checked()
+
+reliz_window = Dialog(
+    Window(
+        Const("<b>Перед направлением релиза обязательно проверь наличие задач на почте❗</b>\n\n"
+              "При отсутствии задач, откладывающих отправку релиза проверь:"),
+        Checkbox(
+            checked_text=Const("✅ Проверил"),
+            unchecked_text=Const('❌ Корректность получателей'),
+            id="is_fixed",
+            default=False,
+            on_state_changed=check_changed
+        ),
+        Checkbox(
+            checked_text=Const("✅ Проверил"),
+            unchecked_text=Const("❌ Корректность темы письма"),
+            id="is_fixed1",
+            default=False,
+            on_state_changed=check_changed
+        ),
+        Checkbox(
+            checked_text=Const("✅ Проверил"),
+            unchecked_text=Const("❌ Наличие файла/ов с релизом"),
+            id="is_fixed4",
+            default=False,
+            on_state_changed=check_changed
+        ),
+        Checkbox(
+            checked_text=Const("✅ Проверил"),
+            unchecked_text=Const("❌ Убрать подпись"),
+            id="is_fixed2",
+            default=False,
+            on_state_changed=check_changed
+        ),
+        Checkbox(
+            checked_text=Const("✅ Проверил"),
+            unchecked_text=Const("❌ Отправка с почты СОП"),
+            id="is_fixed3",
+            default=False,
+            on_state_changed=check_changed
+        ),
+        Button(Const("Закрыть"), id="test_button", on_click=exit),
+
+        state=RelizDialog.state_reliz,
+    ),
+)

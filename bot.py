@@ -10,6 +10,7 @@ from tgbot.handlers.echo import echo_router
 from tgbot.handlers.lifehacks import lifehacks_router
 from tgbot.handlers.start import user_router
 from tgbot.handlers.send_news import send_news_router
+from tgbot.handlers.main_menu import main_menu_router
 from tgbot.middlewares.config import ConfigMiddleware
 from tgbot.misc.logging import configure_logger
 from tgbot.models import db_gino
@@ -18,7 +19,7 @@ from tgbot.services import broadcaster
 
 
 #Информирование о запуске и установка дефолтных команд
-async def on_startup(bot: Bot, admin_ids: list[int]):
+async def on_startup(bot: Bot, admin_ids: int):
     await set_commands(bot)
     await broadcaster.broadcast(bot, admin_ids, "Бот запущен")
 
@@ -33,12 +34,8 @@ def register_global_middlewares(dp: Dispatcher, config):
 async def set_commands(bot: Bot):
     commands = [
         BotCommand(
-            command="news",
-            description="Отправить новость",
-        ),
-        BotCommand(
-            command="help",
-            description="Помощь",
+            command="start",
+            description="Начать работу с ботом",
         ),
     ]
     await bot.set_my_commands(commands=commands, scope=BotCommandScopeDefault())
@@ -54,16 +51,19 @@ async def main():
 
     #Инициализация
     for router in [
-        admin_router,
+        # admin_router,
         user_router,
-        send_news_router,
-        lifehacks_router,
-        echo_router
+        main_menu_router,
+        # send_news_router,
+        # lifehacks_router,
+        echo_router,
+
     ]:
         dp.include_router(router)
 
     registry = DialogRegistry(dp)
     registry.register(checkbox.main_window)
+    registry.register(checkbox.reliz_window)
 
     register_global_middlewares(dp, config)
     await db_gino.on_startup(dp)

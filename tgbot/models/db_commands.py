@@ -1,20 +1,18 @@
 from tgbot.models.db_gino import Sessions
-from tgbot.models.schemas.user import User
+from tgbot.models.schemas.models import User, Quarter
 from asyncpg import UniqueViolationError
 
 
 # Быстрые команда Регистрации Пользователей
 # Передача данных в таблицы БД
-async def create_user(user_id: int, tg_first_name: str, username: str, first_name: str, last_name: str, access: str,
-                   role: str, bonus: int, mistake: int, status: str, is_active: bool):
+async def create_user(user_id: int, first_name: str, last_name: str, access: str,
+                      role: str, status: str, photo: None, sop: str):
     try:
-        user = User(user_id=user_id, tg_first_name=tg_first_name, username=username,
-                    first_name=first_name, last_name=last_name, access=access, role=role,
-                    bonus=bonus, mistake=mistake, status=status, is_active=is_active)
+        user = User(user_id=user_id, first_name=first_name, last_name=last_name, access=access, role=role,
+                    status=status, photo=None, sop=sop)
         await user.create()
     except UniqueViolationError:
         print('Пользователь не добавлен, так как уже зарегистрирован.')
-
 
 
 # Функция которая выбирает всех пользователей
@@ -35,48 +33,69 @@ async def select_user(user_id):
     return user
 
 
-# Функция которая выбирает Пользователя
-async def select_user_role(role):
-    user = await User.query.where(User.role == role).gino.first()
-    return user
-
-
 # Функция удаления пользователя
 async def delete_user(user_id: int):
     await User.delete.where(User.user_id == user_id).gino.status()
 
 
-# Функция которая выбирает по User_Id
-async def select_registration_by_user_id(user_id: int):
-    registration = await User.query.where(User.user_id == user_id).gino.first()
-    return registration
-
-
-# Функция которая выбирает по имени Пользователя
-async def select_registration_by_first_name(first_name: str):
-    registration = await User.query.where(User.first_name == first_name).gino.first()
-    return registration
-
-
-# Функция которая выбирает по Фамилии Пользователя
-async def select_registration_by_last_name(last_name: str):
-    registration = await User.query.where(User.last_name == last_name).gino.first()
-    return registration
-
-
 async def select_user_by_role(role: str):
-    registration = await User.query.where(User.role == role).gino.first()
-    return registration
+    user = await User.query.where(User.role == role).gino.first()
+    return user
+
+
 
 # Список пользователей по доступу
 async def user_rights_access():
-    users_access = await User.query.where(User.access == 'SuperUser').gino.all()
+    users_access = await User.query.where(User.access == 'agreement').gino.all()
     return users_access
 
 
-async def user_rights_role():
-    users_access = await User.query.where(User.role == 'team_leader').gino.all()
-    return users_access
+# Сотрировка пользователей по должности
+async def all_users_by_role(role) -> list:
+    users_id = []
+    users_role = await User.query.where(User.role == role).gino.all()
+    for user in users_role:
+        users_id.append(user.user_id)
+    return users_id
+
+
+# Сотрировка пользователей по доступу
+async def all_users_by_access(access) -> list:
+    users_id = []
+    users_access = await User.query.where(User.access == access).gino.all()
+    for user in users_access:
+        users_id.append(user.user_id)
+    return users_id
+
+# Сотрировка пользователей по сопу
+async def all_users_by_sop(sop) -> list:
+    users_id = []
+    users_sop = await User.query.where(User.sop == sop).gino.all()
+    for user in users_sop:
+        users_id.append(user.user_id)
+    return users_id
+
+# Функция которая сортирует по сопу и должности, возвращает список айди
+async def all_users_by_sop_and_role(sop, role) -> list:
+    users_id =[]
+    users = await User.query.where(User.sop == sop).gino.all()
+    # print(users)
+    for user in users:
+        if user.role == role:
+            users_id.append(user.user_id)
+            # print(user)
+    return users_id
+
+# Функция которая сортирует по сопу и должности, возвращает список айди
+async def all_users_by_sop_and_agreement(sop) -> list:
+    users_id =[]
+    users = await User.query.where(User.sop == sop).gino.all()
+    # print(users)
+    for user in users:
+        if user.access == 'agreement':
+            users_id.append(user.user_id)
+            # print(user)
+    return users_id
 
 
 # Функция которая обновляет доступ Пользователя
@@ -103,7 +122,6 @@ async def update_mistake(user_id, mistake):
     await user.update(mistake=mistake).apply()
 
 
-
 async def get_session(user_id):
     return await Sessions.query.where(Sessions.user_id == user_id).gino.first()
 
@@ -111,3 +129,8 @@ async def get_session(user_id):
 async def create_session(user_id):
     session = Sessions(user_id=user_id)
     await session.create()
+
+
+async def select_all_quarter():
+    users = await Quarter.query.gino.all()
+    return users

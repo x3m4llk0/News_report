@@ -4,6 +4,8 @@ from aiogram.fsm.state import StatesGroup, State
 class registration(StatesGroup):
     first_name = State()
     last_name = State()
+    role = State()
+    finnaly = State()
 
 
 class dialog(StatesGroup):
@@ -14,3 +16,5 @@ class send_news(StatesGroup):
     photo = State()
     send = State()
     reason = State()
+    task_photo = State()
+    re_sending = State()
