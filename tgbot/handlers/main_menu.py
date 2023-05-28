@@ -9,6 +9,7 @@ from tgbot.models import db_commands as commands
 from .send_news import send_news_router
 from .lifehacks import lifehacks_router
 from .admin import admin_router
+from .grade_book import grade_book_router
 
 
 
@@ -17,6 +18,7 @@ main_menu_router = Router()
 main_menu_router.include_router(send_news_router)
 main_menu_router.include_router(lifehacks_router)
 main_menu_router.include_router(admin_router)
+main_menu_router.include_router(grade_book_router)
 
 
 @main_menu_router.message(F.text == "Меню")
@@ -24,7 +26,7 @@ async def test(message: types.Message):
     keyboard = InlineKeyboardBuilder()
     button_1 = InlineKeyboardButton(text='Отправить новость', callback_data='send_news')
     button_2 = InlineKeyboardButton(text='Лайфхаки', callback_data='lifehacks')
-    button_3 = InlineKeyboardButton(text='Карта бонусов #в работе', callback_data='quit_sn')
+    button_3 = InlineKeyboardButton(text='Карта бонусов #в работе', callback_data='grade_book')
     button_4 = InlineKeyboardButton(text='Помощь', callback_data='help')
     button_5 = InlineKeyboardButton(text='Вернуть согласование', callback_data='ca_to_return')
     button_6 = InlineKeyboardButton(text='Изменить должность', callback_data='changerole')
@@ -38,6 +40,7 @@ async def test(message: types.Message):
         if message.from_user.id in await commands.all_users_by_role('ns'): #НСы
             keyboard.row(button_8, button_6)
             keyboard.row(button_7, button_5)
+            keyboard.row(button_3)
             keyboard.row(button_4)
             await message.answer(text='Выберите функцию', reply_markup=keyboard.as_markup())
 
@@ -45,6 +48,7 @@ async def test(message: types.Message):
             keyboard.row(button_1) #for test
             keyboard.row(button_5)
             keyboard.row(button_2)
+            keyboard.row(button_3)
             keyboard.row(button_4)
             await message.answer(text='Выберите функцию', reply_markup=keyboard.as_markup())
 

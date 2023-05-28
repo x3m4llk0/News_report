@@ -1,5 +1,5 @@
 from tgbot.models.db_gino import Sessions
-from tgbot.models.schemas.models import User, Quarter
+from tgbot.models.schemas.models import User, Quarter, Like, Bonus, Mistake
 from asyncpg import UniqueViolationError
 
 
@@ -13,6 +13,7 @@ async def create_user(user_id: int, first_name: str, last_name: str, access: str
         await user.create()
     except UniqueViolationError:
         print('Пользователь не добавлен, так как уже зарегистрирован.')
+
 
 
 # Функция которая выбирает всех пользователей
@@ -134,3 +135,47 @@ async def create_session(user_id):
 async def select_all_quarter():
     users = await Quarter.query.gino.all()
     return users
+
+#создание лайка
+async def create_like(initiator: int, employee: int, quarter: int):
+    like = Like(initiator_id=initiator, employee_id=employee, quarter_id=quarter)
+    await like.create()
+    return like.id
+
+
+# создание бонуса
+async def create_bonus(initiator: int, employee: int, quarter: int, activity: str,
+                      comment: str, criterion: str):
+    bonus = Bonus(initiator_id=initiator, employee_id=employee, quarter_id=quarter, activity=activity,
+                  comment=comment, criterion=criterion)
+    await bonus.create()
+    return bonus.id
+
+# создание ошибки
+async def create_mistake(initiator: int, employee: int, quarter: int, activity: str,
+                      comment: str, criterion: str):
+    mistake = Mistake(initiator_id=initiator, employee_id=employee, quarter_id=quarter, activity=activity,
+                  comment=comment, criterion=criterion)
+    await mistake.create()
+    return mistake.id
+
+
+# Функция которая выбирает бонус
+async def select_bonus(id):
+    user = await Bonus.query.where(Bonus.id == id).gino.first()
+    return user
+
+# Функция которая обновляет бонус
+async def update_comment_bonus(id, comment):
+    bonus = await select_bonus(id)
+    await bonus.update(comment=comment).apply()
+
+# Функция которая выбирает ошибку
+async def select_mistake(id):
+    user = await Mistake.query.where(Mistake.id == id).gino.first()
+    return user
+
+# Функция которая обновляет бонус
+async def update_comment_mistake(id, comment):
+    mistake = await select_mistake(id)
+    await mistake.update(comment=comment).apply()

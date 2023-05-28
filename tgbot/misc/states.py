@@ -18,3 +18,13 @@ class send_news(StatesGroup):
     reason = State()
     task_photo = State()
     re_sending = State()
+
+class send_bonus(StatesGroup):
+    activity = State()
+    criterion = State()
+    quarter = State()
+    confirmation = State()
+    comment = State()
+
+class add_comment(StatesGroup):
+    add_comment = State()

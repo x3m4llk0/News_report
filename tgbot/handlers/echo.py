@@ -11,7 +11,7 @@ async def bot_echo(message: types.Message):
     text = [
         f"Команды {hbold(message.text)} нет.\n",
         f"Кажется, вы слегка промахнулись. С кем не бывает! ",
-        f"Для возврата в главное меню нажмите /help",
+        f"Для возврата в главное меню нажмите /start",
     ]
     await message.answer('\n'.join(text))
 

@@ -38,8 +38,7 @@ async def bot_start(message: types.Message, state: FSMContext, bot: Bot):
                     InlineKeyboardButton(text='Омск', callback_data='sop_omsk'),
                     InlineKeyboardButton(text='ВЛГ', callback_data='sop_vlg'),
                     InlineKeyboardButton(text='СМР', callback_data='sop_smr'),
-                 ],
-                [InlineKeyboardButton(text='Отменить', callback_data='quit')]
+                 ]
             ])
 
         await message.answer('Приветствую тебя СОПовец! Началась регистрация.\nВыбери свой город:'

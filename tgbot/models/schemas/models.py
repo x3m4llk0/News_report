@@ -5,7 +5,7 @@ from gino import Gino
 db = Gino()
 
 
-class User(TimeBaseModel):
+class User(BaseModel):
     __tablename__ = 'db_api_user'
     #создание таблицы "users" в sql. Ниже параметры для заполнения таблицы
     # user_id = Column(BigInteger, primary_key=True)
@@ -31,20 +31,39 @@ class User(TimeBaseModel):
     query: sql.select
 
 #
-class Quarter(TimeBaseModel):
+class Quarter(BaseModel):
     __tablename__ = "db_api_quarter"
     id = Column(BigInteger, primary_key=True)
     quarter = Column(Integer)
     year = Column(Integer)
     query: sql.select
 
-
-class  Bonus(TimeBaseModel):
-    __tablename__ = "db_api_bonus"
+class Like(TimeBaseModel):
+    __tablename__ = "db_api_like"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    initiator = Column(ForeignKey("db_api_user.user_id"))
-    employee = Column(ForeignKey("db_api_user.user_id"))
-    quarter = Column(ForeignKey("db_api_quarter.id"))
+    initiator_id = Column(ForeignKey("db_api_user.user_id", ondelete="CASCADE"))
+    employee_id = Column(ForeignKey("db_api_user.user_id", ondelete="CASCADE"))
+    quarter_id = Column(ForeignKey("db_api_quarter.id", ondelete="CASCADE"))
+
+class Bonus(TimeBaseModel):
+    __tablename__ = "db_api_bonus"
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    initiator_id = Column(ForeignKey("db_api_user.user_id", ondelete="CASCADE"))
+    employee_id = Column(ForeignKey("db_api_user.user_id", ondelete="CASCADE"))
+    quarter_id = Column(ForeignKey("db_api_quarter.id", ondelete="CASCADE"))
     activity = Column(String(200))
     comment = Column(String(200))
     criterion = Column(String(200))
+
+class Mistake(TimeBaseModel):
+    __tablename__ = "db_api_mistake"
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    initiator_id = Column(ForeignKey("db_api_user.user_id", ondelete="CASCADE"))
+    employee_id = Column(ForeignKey("db_api_user.user_id", ondelete="CASCADE"))
+    quarter_id = Column(ForeignKey("db_api_quarter.id", ondelete="CASCADE"))
+    activity = Column(String(200))
+    comment = Column(String(200))
+    criterion = Column(String(200))
+
+
+
