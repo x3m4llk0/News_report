@@ -20,7 +20,7 @@ class User(BaseModel):
     # mistake = Column(BigInteger)
     # status = Column(String(25))
     # is_active = Column(db.Boolean, default=False)
-    id = Column(Integer, primary_key=True)
+    # id = Column(Integer, primary_key=True)
     password = Column(String(128))
     last_login = Column(DateTime(True), default=datetime.datetime.utcnow, server_default=db.func.now())
     is_superuser = Column(Boolean)
@@ -31,10 +31,9 @@ class User(BaseModel):
     is_staff = Column(Boolean)
     is_active = Column(Boolean)
     date_joined = Column(DateTime(True), default=datetime.datetime.utcnow, server_default=db.func.now())
-    user_id = Column(BigInteger)
+    user_id = Column(BigInteger, primary_key=True)
     access = Column(String(100))
     role = Column(String(100))
-
     photo = Column(String(150))
     sop = Column(String(100))
     query: sql.select

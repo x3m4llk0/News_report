@@ -37,4 +37,4 @@ def configure_logger(capture_exceptions: bool = False) -> None:
                    encoding="utf-8", compression="zip")
 
     logging.basicConfig(handlers=[InterceptHandler()], level=logging.INFO)
-    logger.disable("sqlalchemy")
+    # logger.disable("sqlalchemy")

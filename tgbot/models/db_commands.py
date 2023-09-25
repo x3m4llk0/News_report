@@ -154,6 +154,7 @@ async def create_bonus(initiator: int, employee: int, quarter: int, activity: st
 # создание ошибки
 async def create_mistake(initiator: int, employee: int, quarter: int, activity: str,
                       comment: str, criterion: str):
+    print(initiator, employee, quarter, activity,comment, criterion)
     mistake = Mistake(initiator_id=initiator, employee_id=employee, quarter_id=quarter, activity=activity,
                   comment=comment, criterion=criterion)
     await mistake.create()
