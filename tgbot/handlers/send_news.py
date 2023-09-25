@@ -31,7 +31,7 @@ send_news_router = Router()
 @send_news_router.callback_query(Text('send_news'))
 async def add_photo(call: types.CallbackQuery, state: FSMContext):
     user = await commands.select_user(call.from_user.id)
-    if not user or user.status != "active":
+    if not user or not user.is_active:
         await call.message.answer(text='Для отправки новости на согласование зарегистрируйся по команде /start')
     else:
         quit_markup = InlineKeyboardMarkup(

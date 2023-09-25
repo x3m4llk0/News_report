@@ -229,6 +229,7 @@ async def delete_user_cb(call: CallbackQuery, callback_data: DeleteUserCB):
 async def help(call: CallbackQuery):
     await call.answer(cache_time=1)
     await call.message.answer('Если пропадет кнопка меню, отправь команду /start\n'
+                              'Dashboard: https://sop-dashboard.ru \n'
                         '<i>*Раздел помощи находится в работе*</i>')
 
 

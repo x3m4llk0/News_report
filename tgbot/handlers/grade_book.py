@@ -40,7 +40,7 @@ async def main_menu(call: CallbackQuery, bot: Bot):
                                             InlineKeyboardButton(text='Отмена', callback_data='quit_gb')
                                         ]
                                     ])
-    await call.message.edit_text(text="Что вы желаете внести?", reply_markup=keyboard)
+    await call.message.edit_text(text="Dashboard: https://sop-dashboard.ru \nЧто вы желаете внести?", reply_markup=keyboard)
 
 
 @grade_book_router.callback_query(Text(text='quit_gb'))
@@ -205,12 +205,15 @@ async def create_bonus_mistake(call: types.CallbackQuery, state: FSMContext, bot
     #сообщаем получателю и НСу
     if initiator.user_id != employee.user_id:
         await call.message.answer(f'{bonus_mistake[gb_type]} внесен/а')
-        await bot.send_message(chat_id=employee.user_id, text=f'Сотрудник {initiator.last_name} {initiator.first_name[0]}. внес тебе {bonus_mistake[gb_type]}/у.', reply_markup=keyboard.as_markup())
-        await bot.send_message(chat_id=ns_user_id[0], text=f'Сотрудник {initiator.last_name} {initiator.first_name[0]}. внес {bonus_mistake[gb_type]}/у {employee.last_name} {employee.first_name[0]}.')
+        await bot.send_message(chat_id=employee.user_id, text=f'Сотрудник {initiator.last_name} {initiator.first_name[0]}. внес тебе {bonus_mistake[gb_type]}/у:\n'
+                                                              f'{activity}.', reply_markup=keyboard.as_markup())
+        await bot.send_message(chat_id=ns_user_id[0], text=f'Сотрудник {initiator.last_name} {initiator.first_name[0]}. внес {bonus_mistake[gb_type]}/у {employee.last_name} {employee.first_name[0]}:\n'
+                                                           f'{activity}.')
     #сообщаем себе и НСу
     elif initiator.user_id == employee.user_id:
             await call.message.answer(text=f'{bonus_mistake[gb_type]} внесен/а', reply_markup=keyboard.as_markup())
-            await bot.send_message(chat_id=ns_user_id[0], text=f'Сотрудник {initiator.last_name} {initiator.first_name[0]}. внес себе {bonus_mistake[gb_type]}/у.')
+            await bot.send_message(chat_id=ns_user_id[0], text=f'Сотрудник {initiator.last_name} {initiator.first_name[0]}. внес себе {bonus_mistake[gb_type]}/у:\n'
+                                                               f'{activity}')
 
 @grade_book_router.callback_query(UpdateBonusMistake.filter())
 async def choise_comment(call: CallbackQuery, callback_data: UpdateBonusMistake, state: FSMContext):
@@ -221,7 +224,8 @@ async def choise_comment(call: CallbackQuery, callback_data: UpdateBonusMistake,
             await call.message.edit_text(text='Напиши свой комментарий', reply_markup=None)
             await state.set_state(add_comment.add_comment)
         elif callback_data.comment == 'no_comment':
-            await commands.update_comment_bonus(id=callback_data.id, comment='Без комментариев')
+            await commands.update_comment_bonus(id=callback_data.id, comment=' ')
+            await call.message.edit_text(text='Без комментариев', reply_markup=None)
 
 
     elif callback_data.gb_type == 'mistake':

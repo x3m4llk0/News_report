@@ -26,7 +26,7 @@ async def test(message: types.Message):
     keyboard = InlineKeyboardBuilder()
     button_1 = InlineKeyboardButton(text='Отправить новость', callback_data='send_news')
     button_2 = InlineKeyboardButton(text='Лайфхаки', callback_data='lifehacks')
-    button_3 = InlineKeyboardButton(text='Карта бонусов #в работе', callback_data='grade_book')
+    button_3 = InlineKeyboardButton(text='Карта бонусов и ошибок', callback_data='grade_book')
     button_4 = InlineKeyboardButton(text='Помощь', callback_data='help')
     button_5 = InlineKeyboardButton(text='Вернуть согласование', callback_data='ca_to_return')
     button_6 = InlineKeyboardButton(text='Изменить должность', callback_data='changerole')
@@ -34,7 +34,7 @@ async def test(message: types.Message):
     button_8 = InlineKeyboardButton(text='О секторе', callback_data='my_team')
 
     user = await commands.select_user(message.from_user.id)
-    if not user or user.status != "active":
+    if not user or not user.is_active:
         await message.answer(text='Для использования бота зарегистрируйся по команде /start')
     else:
         if message.from_user.id in await commands.all_users_by_role('ns'): #НСы
@@ -52,15 +52,16 @@ async def test(message: types.Message):
             keyboard.row(button_4)
             await message.answer(text='Выберите функцию', reply_markup=keyboard.as_markup())
 
-        elif message.from_user.id in await commands.all_users_by_sop('stvp'): # соп СТВП
-            keyboard.row(button_1)
-            keyboard.row(button_2)
-            keyboard.row(button_3)
-            keyboard.row(button_4)
-            await message.answer(text='Выберите функцию', reply_markup=keyboard.as_markup())
+        # elif message.from_user.id in await commands.all_users_by_sop('stvp'): # соп СТВП
+        #     keyboard.row(button_1)
+        #     keyboard.row(button_2)
+        #     keyboard.row(button_3)
+        #     keyboard.row(button_4)
+        #     await message.answer(text='Выберите функцию', reply_markup=keyboard.as_markup())
         else: #остальные сотрудники
             keyboard.row(button_1)
             keyboard.row(button_2)
+            keyboard.row(button_3)
             keyboard.row(button_4)
             await message.answer(text='Выберите функцию', reply_markup=keyboard.as_markup())
 

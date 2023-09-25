@@ -1,6 +1,7 @@
-from sqlalchemy import BigInteger, Column, String, sql, Integer, ForeignKey
+from sqlalchemy import BigInteger, Column, String, sql, Integer, ForeignKey, DateTime, Boolean
 from tgbot.models.db_gino import TimeBaseModel, BaseModel
 from gino import Gino
+import datetime
 
 db = Gino()
 
@@ -19,14 +20,22 @@ class User(BaseModel):
     # mistake = Column(BigInteger)
     # status = Column(String(25))
     # is_active = Column(db.Boolean, default=False)
-
-    user_id = Column(BigInteger, primary_key=True)
-    first_name = Column(String(100))
-    last_name = Column(String(100))
+    id = Column(Integer, primary_key=True)
+    password = Column(String(128))
+    last_login = Column(DateTime(True), default=datetime.datetime.utcnow, server_default=db.func.now())
+    is_superuser = Column(Boolean)
+    username = Column(String(150))
+    first_name = Column(String(150))
+    last_name = Column(String(150))
+    email = Column(String(254))
+    is_staff = Column(Boolean)
+    is_active = Column(Boolean)
+    date_joined = Column(DateTime(True), default=datetime.datetime.utcnow, server_default=db.func.now())
+    user_id = Column(BigInteger)
     access = Column(String(100))
     role = Column(String(100))
-    status = Column(String(100))
-    photo = Column(String(150), nullable=True)
+
+    photo = Column(String(150))
     sop = Column(String(100))
     query: sql.select
 

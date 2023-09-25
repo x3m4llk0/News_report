@@ -5,14 +5,14 @@ from asyncpg import UniqueViolationError
 
 # Быстрые команда Регистрации Пользователей
 # Передача данных в таблицы БД
-async def create_user(user_id: int, first_name: str, last_name: str, access: str,
-                      role: str, status: str, photo: None, sop: str):
-    try:
-        user = User(user_id=user_id, first_name=first_name, last_name=last_name, access=access, role=role,
-                    status=status, photo=None, sop=sop)
-        await user.create()
-    except UniqueViolationError:
-        print('Пользователь не добавлен, так как уже зарегистрирован.')
+# async def create_user(user_id: int, first_name: str, last_name: str, access: str,
+#                       role: str, status: str, photo: None, sop: str):
+#     try:
+#         user = User(user_id=user_id, first_name=first_name, last_name=last_name, access=access, role=role,
+#                     status=status, photo=None, sop=sop)
+#         await user.create()
+#     except UniqueViolationError:
+#         print('Пользователь не добавлен, так как уже зарегистрирован.')
 
 
 
@@ -35,8 +35,8 @@ async def select_user(user_id):
 
 
 # Функция удаления пользователя
-async def delete_user(user_id: int):
-    await User.delete.where(User.user_id == user_id).gino.status()
+# async def delete_user(user_id: int):
+#     await User.delete.where(User.user_id == user_id).gino.status()
 
 
 async def select_user_by_role(role: str):
