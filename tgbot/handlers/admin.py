@@ -138,6 +138,7 @@ async def change_access_new(call: CallbackQuery):
     sop_dict = await commands.all_users_by_sop(changer.sop)
     keyboard = InlineKeyboardBuilder()
     for user_id in sop_dict:
+        # print(user_id)
         user = await commands.select_user(user_id)
         # пропускает текущего пользователя
         if call.from_user.id == user.user_id:
@@ -167,8 +168,8 @@ async def change_role(call: CallbackQuery, callback_data: ChangeAccessCB):
 
     changer = await commands.select_user(call.from_user.id)
     sop_dict = await commands.all_users_by_sop(changer.sop)
-    for user_id in sop_dict:
-        await commands.update_access(user_id=user_id, access="user")
+    for users in sop_dict:
+        await commands.update_access(user_id=users, access="user")
     user = await commands.select_user(user_id)
     await commands.update_access(user_id=user_id, access=new_access)
     await call.message.edit_text(

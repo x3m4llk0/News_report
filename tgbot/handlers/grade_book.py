@@ -66,7 +66,7 @@ async def users_for_like(call: CallbackQuery):
         user = InlineKeyboardButton(text=f'👤{user.last_name} {user.first_name[0]}.',
                                     callback_data=SendLike(employee=user.user_id).pack())
         keyboard.row(user)
-        quit_button = InlineKeyboardButton(text='Отмена', callback_data='quit_cr')
+        quit_button = InlineKeyboardButton(text='Отмена', callback_data='quit_gb')
         keyboard.adjust(3)
     keyboard.row(quit_button)
     await call.message.edit_text(text="Выберите сотрудника", reply_markup=keyboard.as_markup())
